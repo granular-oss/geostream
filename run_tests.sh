@@ -1,7 +1,7 @@
 #!/bin/sh -e
 dir="$( cd "$( dirname "$0" )" && pwd )"
 cd $dir
-. util.sh
+. ./util.sh
 
 mkdir -p results
 
