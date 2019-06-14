@@ -3,6 +3,7 @@ language: python
 install:
     - "make"
     - 'pip install pipenv'
+    - 'pipenv install --dev'
 #    - 'pipenv sync'
 # command to run tests
 script:
