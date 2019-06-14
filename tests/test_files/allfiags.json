@@ -1,0 +1,136 @@
+{
+    "crs": {
+        "properties": {
+            "name": "EPSG:4326"
+        },
+        "type": "name"
+    },
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            50,
+                            50
+                        ],
+                        [
+                            60,
+                            50
+                        ],
+                        [
+                            60,
+                            60
+                        ],
+                        [
+                            50,
+                            60
+                        ],
+                        [
+                            50,
+                            50
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "prop0": "val2"
+            },
+            "type": "Feature"
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            41,
+                            41
+                        ],
+                        [
+                            50,
+                            11
+                        ],
+                        [
+                            50,
+                            50
+                        ],
+                        [
+                            41,
+                            50
+                        ],
+                        [
+                            41,
+                            41
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "prop0": "val1"
+            },
+            "type": "Feature"
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        [
+                            10,
+                            10
+                        ],
+                        [
+                            40,
+                            10
+                        ],
+                        [
+                            40,
+                            40
+                        ],
+                        [
+                            10,
+                            40
+                        ],
+                        [
+                            10,
+                            10
+                        ]
+                    ],
+                    [
+                        [
+                            20,
+                            20
+                        ],
+                        [
+                            30,
+                            20
+                        ],
+                        [
+                            30,
+                            30
+                        ],
+                        [
+                            20,
+                            30
+                        ],
+                        [
+                            20,
+                            20
+                        ]
+                    ]
+                ],
+                "type": "Polygon"
+            },
+            "properties": {
+                "prop0": "val0"
+            },
+            "type": "Feature"
+        }
+    ],
+    "properties": {
+        "key": "uuid",
+        "unit": "something"
+    },
+    "type": "FeatureCollection"
+}

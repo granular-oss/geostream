@@ -1,0 +1,15 @@
+[packages]
+geojson = ">2.4.0"
+simplejson=">=3.16.0"
+
+[dev-packages]
+ipdb = "*"
+pipenv = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-flake8 = "*"
+mypy = "*"
+black = "==18.9b0"
+
+[requires]
+python_version = ">=3.6"
