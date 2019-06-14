@@ -1,7 +1,10 @@
 language: python
 # command to install dependencies
-install: "make"
+install:
+    - "make"
+    - 'pip install pipenv'
+    - 'pipenv sync'
 # command to run tests
 script:
-  - make test-ci
+    - "make test-ci"
 cache: pip
