@@ -1,6 +1,6 @@
 BUILD_NUMBER?=0
 
-.PHONY: build bump_major bump_minor bump_patch clean dev lock package test
+.PHONY: build bump_major bump_minor bump_patch clean dev lock package test black mypy
 
 
 all:
@@ -31,7 +31,10 @@ bump_major:
 	bumpversion major
 
 black:
-	black geostream/*
+	pipenv run black -l 120 geostream/* geostream/cli/*.py
+
+mypy:
+	pipenv run mypy geostream --ignore-missing-imports --warn-redundant-casts --disallow-incomplete-defs
 
 test:
 	@echo "--------------------------------------------------------------------------------"
@@ -65,3 +68,4 @@ clean:
 	rm -rf dist
 	rm -rf results
 	rm -rf geostream.egg-info
+	rm -rf tests/_cli_out

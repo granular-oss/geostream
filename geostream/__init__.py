@@ -1,3 +1,4 @@
-from geostream.geostream import reader, writer
+from geostream.feature import Feature
+from geostream.geostream import GeoStreamReader, GeoStreamWriter, reader, writer
 
-__version__ = "1.2.0"
+__version__ = "2.0.0"

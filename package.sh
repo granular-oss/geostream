@@ -12,6 +12,6 @@ BUILD_NUMBER=${BUILD_NUMBER:-0}
 sed -Ei "s/__build__\s+=\s+[0-9]+/__build__ = ${BUILD_NUMBER}/g" setup.py
 
 
-logit "packaging wheel"
-# build the wheel
+logit "packaging wheel and sdist"
+# build
 python setup.py bdist_wheel sdist
