@@ -14,6 +14,7 @@ setup(
     author='Donna Okazaki',
     author_email='donnaokazaki@granular.ag',
     version=__version__,
+    python_requires='~=3.6',
     package_data={'geostream': ['py.typed']},
     packages=find_packages(exclude=['tests', 'tests.*']),
     install_requires=convert_deps_to_pip(pfile['packages'], r=False),

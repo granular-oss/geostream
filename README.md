@@ -42,7 +42,7 @@ json text files formatted as GeoJSON FeatureCollections
   string, to unpack only selected features
   * Bash shell example: `unpack_gjz -v -o ./filtered -s {\"foo\":true} *.gjz` will unpack each `.gjz` file in
   the current directory, only extracting features with a property `foo` set to `true`, and then write the unpacked
-  GeoJSON files to the `.filtered` sub-directory. The `-v` flag will print unpack progress and the number of
+  GeoJSON files to the `./filtered` sub-directory. The `-v` flag will print unpack progress and the number of
   extracted features for each file.
 
 ##  Module Contents <a name="modulecontents"></a>
