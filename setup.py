@@ -3,7 +3,7 @@ from pipenv.utils import convert_deps_to_pip
 from setuptools import find_packages, setup
 
 __build__ = 0
-__version__ = f'1.2.0.{__build__}'
+__version__ = f'2.0.0.{__build__}'
 
 
 pfile = Project(chdir=False).parsed_pipfile

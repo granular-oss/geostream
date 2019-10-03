@@ -1,6 +1,7 @@
 [packages]
-geojson = ">2.4.0"
 simplejson=">=3.16.0"
+cbor2 = ">=4.1.2"
+geomet = ">=0.2.1"
 
 [dev-packages]
 ipdb = "*"
@@ -9,9 +10,14 @@ pytest = "*"
 pytest-cov = "*"
 pytest-flake8 = "*"
 mypy = "*"
-black = "==18.9b0"
+black = "*"
 setuptools = ">=24.2.0"
 pip = ">=9.0.0"
+bumpversion = "*"
+v = {editable = true,version = "*"}
+
+[pipenv]
+allow_prereleases = true
 
 [requires]
 python_version = "3"
