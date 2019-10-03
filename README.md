@@ -227,6 +227,3 @@ Run `make` to see a list of what you can do with this package.
 ## Author(s)
 * Donna Okazaki <donnaokazaki@granular.ag>
 * Eric Jensen <ericjensen@granular.ag>
-
-## License
-Proprietary, (c) 2019 Granular
