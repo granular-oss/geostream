@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -e
+# Use /usr/bin/env bash and set -e, so that a newer version of bash can be used on mac
+
+_error_handler() {
+    errorCode=$? # save the exit code as the first thing done in the trap function
+    echo "Exiting early due to error $errorCode"
+    echo "The command executing at the time of the error was"
+    echo "\"$BASH_COMMAND\""
+    echo "on line ${BASH_LINENO[0]}."
+    # do some error handling, cleanup, logging, notification
+    # $BASH_COMMAND contains the command that was being executed at the time of the trap
+    # ${BASH_LINENO[0]} contains the line number in the script of that command
+    # exit the script or return to try again, etc.
+    exit $errorCode # or use some other value or do return instead
+}
+
+trap _error_handler ERR
+
+# Set to directory of run script
+dir="$(cd "$(dirname "$0")" && pwd)"
+cd "$dir"
+
+# Env Vars defaults
+export ROOT_DIR=$dir
+export G_CONFIG_LOCATION="$dir/configs/localdev.yaml"
+export DOCKER_MAKE=${DOCKER_MAKE:-true}
+export IN_DOCKER=${IN_DOCKER:-false}
+export DEPLOY_BUCKET=${DEPLOY_BUCKET:-localbucket}
+export ENVIRONMENT=${ENVIRONMENT:-localdev}
+export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+export REGION=${REGION:-us-east-1}
+export SHORTREGION=${SHORTREGION:-us}
+export ENCRYPTED_VARS=${ENCRYPTED_VARS:-""}
+
+DOCKER_PYTHON=python38
+
+usage=()
+
+# Any command listed here will pass through to the Makefile
+make_passthrough_cmds=()
+
+if [ -z "$CI_SERVER_URL" ]; then
+    # docker_vars="-it" # if not on server run with `-it`
+    docker_compose_args="-f docker-compose.yml"
+else
+    # docker_vars=""
+    docker_compose_args="-f docker-compose.yml"
+fi
+
+_run_docker_cmd() {
+    echo "$@"
+    build
+    # shellcheck disable=SC2086
+    docker-compose ${docker_compose_args} run --service-ports --rm "${DOCKER_PYTHON}" "$@"
+}
+
+_run_cmd() {
+    if [ "$DOCKER_MAKE" == 'true' ] && [ "$IN_DOCKER" != 'true' ]; then
+        _run_docker_cmd "$@"
+    else
+        "$@"
+    fi
+}
+
+_logit() {
+    echo '--------------------------------------------------------------------------------'
+    echo "$@"
+    echo '--------------------------------------------------------------------------------'
+}
+
+usage+=("")
+usage+=("Standard Commands:")
+usage+=("  $0 tests - Run tests")
+tests() {
+    install
+    _run_cmd poetry run ./run _tests "$@"
+}
+_tests() {
+    mkdir -p results
+    _logit 'Running tests'
+    DD_TRACE_ENABLED=false pytest "$@"
+
+    bandit -r geostream -ll
+}
+usage+=("  $0 test37 - Run test in Python 3.7")
+test37() {
+    install
+    DOCKER_PYTHON=python37
+    _run_cmd poetry run ./run _tests "$@"
+}
+usage+=("  $0 test38 - Run test in Python 3.8")
+test38() {
+    install
+    DOCKER_PYTHON=python38
+    _run_cmd poetry run ./run _tests "$@"
+}
+usage+=("  $0 test39 - Run test in Python 3.9")
+test39() {
+    install
+    DOCKER_PYTHON=python39
+    _run_cmd poetry run ./run _tests "$@"
+}
+usage+=("  $0 test310 - Run test in Python 3.9")
+test310() {
+    install
+    DOCKER_PYTHON=python39
+    _run_cmd poetry run ./run _tests "$@"
+}
+usage+=("  $0 test_all - Run test in all configured Pythons")
+test_all() {
+    test37 "$@"
+    test38 "$@"
+    test39 "$@"
+    test310 "$@"
+}
+
+usage+=("  $0 lint - Runs linting (black, isort, mypy) checks; non-zero exit status on failure")
+lint() {
+    install
+    _run_cmd ./run _lint
+}
+_lint() {
+    _logit Running isort check
+    poetry run isort --check .
+    _logit Running black check
+    poetry run black --check .
+    _logit Running mypy
+    poetry run mypy .
+    _logit Running flake8
+    poetry run flake8 .
+}
+
+usage+=("  $0 refmt - Run black and isort")
+refmt() {
+    install
+    _run_cmd ./run _refmt
+}
+_refmt() {
+    poetry run isort .
+    poetry run black .
+}
+
+usage+=("  $0 cleanup - Cleans up any auto-started project environment")
+cleanup() {
+    ./run _cleanup
+}
+_cleanup() {
+    _logit Running cleanup
+    rm -rf build results .serverless .venv .pytest_cache .mypy_cache ./*.egg-info node_modules
+    find . \
+        \( \
+        -iname "*.so" -or \
+        -iname "*.pyc" -or \
+        -iname "__pycache__" -or \
+        -iname "*.egg*" \
+        \) \
+        -exec rm -rf {} \;
+}
+
+##################################################################################################
+# Additional Run Commands
+##################################################################################################
+usage+=("")
+usage+=("Repo Specific Commands")
+usage+=("  $0 dev - Run poetry shell")
+dev() {
+    _run_cmd poetry shell
+}
+
+usage+=("")
+usage+=("Repo Specific Commands")
+usage+=("  $0 shell - Run a bash shell")
+shell() {
+    _run_cmd /bin/bash
+}
+
+usage+=("  $0 install - Install poetry & npm dependencies locally")
+install() {
+    # Only install if not in docker
+    if [ "$IN_DOCKER" != 'true' ] && [ "$DOCKER_MAKE" != 'true' ]; then
+        # Calling manually
+        echo "installing dependencies"
+        make install
+    fi
+}
+
+usage+=("  $0 build - Build docker container")
+build() {
+    if [ "$DOCKER_MAKE" == 'true' ] && [ "$IN_DOCKER" != 'true' ]; then
+        # shellcheck disable=SC2086
+        docker-compose ${docker_compose_args} build
+    else
+        echo "Already in the container"
+    fi
+}
+
+usage+=("  $0 stop - Stop all docker containers")
+stop() {
+    _logit "stopping all docker containers"
+    # shellcheck disable=SC2086
+    docker-compose ${docker_compose_args} down
+}
+
+usage+=("  $0 package - Run poetry build")
+package() {
+    install
+    _run_cmd poetry build
+}
+
+usage+=("  $0 tests - Run tests")
+exists() {
+    version="$(poetry version)"
+    version="${version// /==}"
+
+    echo "Checking for ${version}"
+
+    if pip3.8 download -v "${version}" --no-deps --quiet; then
+        echo -en '\E[31m'"\033[1mArtifact already published.\033[0m""\n"
+        exit 1
+    else
+        echo -en '\E[33m'"\033[1mArtifact can be publish.\033[0m""\n"
+        exit 0
+    fi
+}
+
+cmd="$1"
+
+# If there was a command, then shift so $@ is the args
+# Don't need to shift if $@ is already just ""
+if [[ "$cmd" != "" ]]; then shift; fi
+
+for make_cmd in "${make_passthrough_cmds[@]}"; do
+    if [[ "$cmd" == "$make_cmd" ]]; then exec make "$cmd" "$@"; fi
+done
+
+echo_usage() {
+    echo "Set DOCKER_MAKE=(true|false) for desire localdev behavior"
+    # shellcheck disable=SC2016
+    echo 'NOTE: All of the `./run` commands work inside the docker container launched by leaving `DOCKER_MAKE=true` and calling `./run dev`'
+    echo "Usage:  run COMMAND"
+    echo ""
+    echo "Entrypoint for all repository scripted actions."
+
+    for line in "${usage[@]}"; do echo "$line"; done
+    make usage
+    exit 1
+}
+
+if [ -z "$cmd" ]; then
+    echo_usage
+fi
+
+# if command not found echo usage
+if ! declare -f "$cmd" >/dev/null; then
+    echo_usage
+fi
+
+# uncomment me to debug ./run commands
+#set -o xtrace
+
+"$cmd" "$@"

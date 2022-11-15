@@ -1,8 +1,8 @@
 import io
 import typing as typ
 
-from geostream.constants import GEOJSON_EPSG_SRID
 from geostream.base import GeoStreamReader, GeoStreamWriter, read_header
+from geostream.constants import GEOJSON_EPSG_SRID
 from geostream.v3 import GeoStreamReaderV3, GeoStreamReverseReaderV3
 from geostream.v4 import GeoStreamReaderV4, GeoStreamReverseReaderV4, GeoStreamWriterV4
 

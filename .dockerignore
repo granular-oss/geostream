@@ -1,0 +1,29 @@
+# Host files
+.git
+.gitignore
+.dockerignore
+main.py
+_main.py
+.venv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+.pytest_cache/
+.mypy_cache/
+.eggs/
+
+# Test reporting files
+.coverage
+
+# IDE files
+.idea
+*.sw[a-z]
+.vscode
+
+# Build artifacts
+build
+dist
+results
+geostream.egg-info

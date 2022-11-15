@@ -4,7 +4,7 @@ import argparse
 import sys
 import typing as typ
 from collections import deque
-from datetime import datetime, date
+from datetime import date, datetime
 from functools import partial
 from glob import iglob
 from pathlib import Path
@@ -13,12 +13,12 @@ from uuid import UUID
 import simplejson as json
 
 import geostream
-from geostream.feature import FeatureCollection
+from geostream.feature import Feature, FeatureCollection
 
 _feature_count = deque([0], maxlen=1)  # internal counter
 
 
-def _cbor2types_to_json(obj):
+def _cbor2types_to_json(obj: typ.Any) -> str:
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, UUID):
@@ -26,7 +26,7 @@ def _cbor2types_to_json(obj):
     raise TypeError(repr(obj) + " is not JSON serializable")
 
 
-def cli():
+def cli() -> None:
     args = parse_args()
 
     output_one_named_file = False
@@ -84,7 +84,9 @@ def cli():
                 continue
 
             if select:
-                selected = filter(lambda feat: all(item in feat.properties.items() for item in select.items()), reader)
+                selected: typ.Iterable[Feature] = filter(
+                    lambda feat: all(item in feat.properties.items() for item in select.items()), reader
+                )
             else:
                 selected = reader
 
@@ -92,9 +94,12 @@ def cli():
                 _feature_count.append(0)
                 selected = map(_count_features, selected)
 
-            geojson_collection = FeatureCollection(features=selected, properties=reader.properties, srid=reader.srid)
+            geojson_collection = FeatureCollection(
+                features=tuple(selected), properties=reader.properties, srid=reader.srid
+            )
 
             try:
+                assert output_file is not None
                 with output_file.open("w") as tf:
                     dump_fn = partial(
                         json.dump,
@@ -122,7 +127,7 @@ def _count_features(pass_thru: typ.Any) -> typ.Any:
     return pass_thru
 
 
-def parse_args():
+def parse_args():  # type: ignore
     parser = argparse.ArgumentParser(description="Unpack one or more GeoStream compressed files to GeoJSON")
     parser.add_argument(
         "inputs", type=str, metavar="GJZ", nargs="+", help="path(s) to the input geostream (.gjz) file or files"

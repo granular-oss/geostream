@@ -1,0 +1,99 @@
+[build-system]
+requires = ["poetry>=1.1.0"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "geostream"
+version = "2.1.1"
+description = "For reading and writing GeoStream headers and losslessly compressed GeoJSON-like Features on a binary stream"
+authors = ["Eric Jensen <ericjensen@granular.ag>", "Donna Okazaki <donnaokazaki@granular.ag>"]
+maintainers = ["Granular GLaDOS"]
+packages = [
+  { include="geostream" },
+  { include="geostream/py.typed" },
+]
+repository="https://github.com/granular-oss/geostream"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+simplejson=">=3.16.0"
+cbor2 = ">=4.1.2"
+geomet = ">=0.2.1"
+
+[tool.poetry.dev-dependencies]
+black = {version = "*", allow-prereleases = true}
+pytest = "*"
+pytest-cov = "*"
+flake8 = "*"
+mypy = "*"
+isort = "*"
+bumpversion = "*"
+bandit = "*"
+types-simplejson = "*"
+importlib-metadata = {version = "*", markers = "python_version < '3.8'"} # Helping pytest
+
+[tool.poetry.extras]
+all = []
+
+[tool.poetry.scripts]
+unpack_gjz = "geostream.cli:cli"
+
+[tool.black]
+line-length = 120
+target-version = [ "py38" ]
+exclude = '''
+/(
+    \.cache
+  | \.git
+  | .pytest_cache
+  | .venv
+  | \.vscode
+  | node_modules
+  | build
+  | configs
+  | dist*
+  | .serverless
+  | docker
+  | docs
+  | htmlcov
+)/
+'''
+
+[tool.isort]
+multi_line_output = 3
+force_grid_wrap = 0
+use_parentheses = true
+include_trailing_comma = true
+line_length = 120
+skip = [
+  "handler.py",
+  "node_modules",
+  ".serverless"
+]
+known_first_party = [
+  "geostream",
+  "geostream.*",
+]
+default_section = "THIRDPARTY"
+sections = [
+  "FUTURE",
+  "STDLIB",
+  "THIRDPARTY",
+  "FIRSTPARTY",
+  "LOCALFOLDER",
+]
+
+[tool.pytest.ini_options]
+minversion= "6.0"
+testpaths = [
+  "tests",
+]
+addopts = '''
+  -ra
+  --cov=geostream
+  --cov-report xml:results/coverage.xml
+  --cov-report html:results/cov_html
+  --cov-report term-missing
+  --verbose
+  --junitxml=results/test.xml
+'''

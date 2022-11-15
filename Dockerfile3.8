@@ -1,0 +1,17 @@
+FROM python:3.8
+
+WORKDIR /app
+
+RUN groupadd -g 1000 -r theuser \
+    && useradd -g 1000 -u 1000 --no-log-init -r -m -g theuser theuser \
+    && chown theuser:theuser /app \
+    && pip install -q --no-cache-dir poetry
+
+USER theuser
+
+ENV POETRY_VIRTUALENVS_PATH=/home/theuser/.virtualenvs
+
+COPY --chown=theuser:theuser pyproject.toml poetry.lock  /app/
+
+RUN poetry install -q --no-root
+

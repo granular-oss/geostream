@@ -19,7 +19,7 @@ def srid_to_crs(srid: typ.Optional[int]) -> typ.Mapping:
 
 
 @lru_cache()
-def cached_crs(srid: typ.Optional[int]) -> typ.Mapping:
+def cached_crs(srid: typ.Optional[int]) -> typ.MutableMapping:
     if srid is None:
         srid = GEOJSON_EPSG_SRID
     return dict(crs=srid_to_crs(srid), meta={"srid": srid})
@@ -46,7 +46,7 @@ class Feature(dict, typ.MutableMapping[str, typ.Any]):
         return self["geometry"]
 
     @property
-    def properties(self) -> Properties:
+    def properties(self) -> typ.Mapping[str, typ.Any]:
         return self["properties"]
 
     @property
@@ -54,19 +54,19 @@ class Feature(dict, typ.MutableMapping[str, typ.Any]):
         return self.__srid
 
     @property
-    def wkb(self):
+    def wkb(self) -> bytes:
         return wkb.dumps(self["geometry"])
 
     @property
-    def wkt(self):
+    def wkt(self) -> str:
         return wkt.dumps(self["geometry"])
 
     @property
-    def ewkt(self):
+    def ewkt(self) -> str:
         return wkt.dumps(ChainMap(cached_crs(self.__srid), self["geometry"]))
 
     @property
-    def ewkb(self):
+    def ewkb(self) -> bytes:
         return wkb.dumps(ChainMap(cached_crs(self.__srid), self["geometry"]))
 
     @classmethod
@@ -100,7 +100,7 @@ class FeatureCollection(dict, typ.MutableMapping[str, typ.Any]):
         return self["features"]
 
     @property
-    def properties(self) -> Properties:
+    def properties(self) -> typ.Optional[Properties]:
         return self.get("properties")
 
     @property

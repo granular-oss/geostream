@@ -1,11 +1,12 @@
-language: python
-# command to install dependencies
-install:
-    - "make"
-    - 'pip install pipenv'
-    - 'pipenv install --dev'
-#    - 'pipenv sync'
-# command to run tests
-script:
-    - "make test-ci"
-cache: pip
+# ZJO commented out on 2022-11-15 need to review for corrections
+# language: python
+# # command to install dependencies
+# install:
+#     - "make"
+#     - 'pip install pipenv'
+#     - 'pipenv install --dev'
+# #    - 'pipenv sync'
+# # command to run tests
+# script:
+#     - "make test-ci"
+# cache: pip

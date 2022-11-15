@@ -8,7 +8,7 @@ from geostream.base import Feature, GeoStreamReader, GeoStreamReverseReader, Geo
 
 
 class GeoStreamReaderV4(GeoStreamReader):
-    """ Stream header accessors and iterator over a readable binary stream of compressed GeoJSON Features """
+    """Stream header accessors and iterator over a readable binary stream of compressed GeoJSON Features"""
 
     GEOSTREAM_SCHEMA_VERSION = 4
 
@@ -22,7 +22,7 @@ class GeoStreamReaderV4(GeoStreamReader):
 
 
 class GeoStreamReverseReaderV4(GeoStreamReverseReader):
-    """ Stream header accessors and backwards iterator over a readable binary stream of compressed GeoJSON Features """
+    """Stream header accessors and backwards iterator over a readable binary stream of compressed GeoJSON Features"""
 
     GEOSTREAM_SCHEMA_VERSION = 4
 
@@ -36,7 +36,7 @@ class GeoStreamReverseReaderV4(GeoStreamReverseReader):
 
 
 class GeoStreamWriterV4(GeoStreamWriter):
-    """ Binary stream writer provides methods to write a header followed by compressed GeoJSON Features  """
+    """Binary stream writer provides methods to write a header followed by compressed GeoJSON Features"""
 
     GEOSTREAM_SCHEMA_VERSION: int = 4
 
