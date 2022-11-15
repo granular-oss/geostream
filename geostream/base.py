@@ -7,6 +7,9 @@ from functools import partial
 from geostream.constants import GEOJSON_EPSG_SRID, GEOSTREAM_SCHEMA_VERSIONS
 from geostream.feature import Feature, FeatureCollection, Properties
 
+HEADER_STRUCT = "<III"
+INTEGER_STRUCT = "<I"
+
 
 class Header(typ.NamedTuple):
     version: int
@@ -16,7 +19,7 @@ class Header(typ.NamedTuple):
 
 def read_header(stream: typ.BinaryIO) -> Header:
     stream.seek(0, io.SEEK_SET)  # header is located at the start of the stream
-    header = Header(*struct.unpack("Bii", stream.read(struct.calcsize("Bii"))))
+    header = Header(*struct.unpack(HEADER_STRUCT, stream.read(struct.calcsize(HEADER_STRUCT))))
     version = header.version
     if version not in GEOSTREAM_SCHEMA_VERSIONS:
         raise ValueError(
@@ -27,7 +30,7 @@ def read_header(stream: typ.BinaryIO) -> Header:
 
 
 class GeoStreamReader(typ.Iterator[Feature]):
-    """ Stream header accessors and iterator over a readable binary stream of compressed GeoJSON Features """
+    """Stream header accessors and iterator over a readable binary stream of compressed GeoJSON Features"""
 
     __slots__ = ("stream", "_schema_version", "_srid", "_props", "_construct_feature")
     GEOSTREAM_SCHEMA_VERSION: int
@@ -69,10 +72,9 @@ class GeoStreamReader(typ.Iterator[Feature]):
         return version, srid, props
 
     def _read_length(self) -> typ.Optional[int]:
-        fmt = "i"
-        read_len = struct.calcsize(fmt)
+        read_len = struct.calcsize(INTEGER_STRUCT)
         buffer: bytes = self.stream.read(read_len)
-        return struct.unpack(fmt, buffer)[0] if len(buffer) == read_len else None
+        return struct.unpack(INTEGER_STRUCT, buffer)[0] if len(buffer) == read_len else None
 
     def _reader(self) -> typ.Optional[Feature]:
         zip_len = self._read_length()
@@ -100,7 +102,7 @@ class GeoStreamReader(typ.Iterator[Feature]):
 
 
 class GeoStreamReverseReader(GeoStreamReader):
-    """ Stream header accessors and backwards iterator over a readable binary stream of compressed GeoJSON Features """
+    """Stream header accessors and backwards iterator over a readable binary stream of compressed GeoJSON Features"""
 
     __slots__ = (
         "buf_size",
@@ -111,7 +113,7 @@ class GeoStreamReverseReader(GeoStreamReader):
         "offset_from_stream_end",
         "buffer",
     )
-    LENGTH_SIZE: int = struct.calcsize("i")
+    LENGTH_SIZE: int = struct.calcsize(INTEGER_STRUCT)
 
     def __init__(self, stream: typ.BinaryIO, buf_size: int = io.DEFAULT_BUFFER_SIZE) -> None:
         super().__init__(stream)
@@ -123,7 +125,7 @@ class GeoStreamReverseReader(GeoStreamReader):
         self.offset_from_stream_end = 0
         self.buffer = io.BytesIO()
 
-    def _grow_buffer(self):
+    def _grow_buffer(self) -> None:
         if self.remaining_size > 0:
             cur_buffer_offset = self.buffer.tell()
             self.buffer.seek(0, io.SEEK_SET)
@@ -137,7 +139,11 @@ class GeoStreamReverseReader(GeoStreamReader):
 
     def _read_length(self) -> typ.Optional[int]:
         len_buffer: bytes = self.buffer.read(GeoStreamReverseReader.LENGTH_SIZE)
-        return struct.unpack("i", len_buffer)[0] if len(len_buffer) == GeoStreamReverseReader.LENGTH_SIZE else None
+        return (
+            struct.unpack(INTEGER_STRUCT, len_buffer)[0]
+            if len(len_buffer) == GeoStreamReverseReader.LENGTH_SIZE
+            else None
+        )
 
     def _reader(self) -> typ.Optional[Feature]:
         if self.buffer.tell() < GeoStreamReverseReader.LENGTH_SIZE:
@@ -169,7 +175,7 @@ class GeoStreamReverseReader(GeoStreamReader):
 
 
 class GeoStreamWriter:
-    """ Binary stream writer provides methods to write a header followed by compressed GeoJSON Features  """
+    """Binary stream writer provides methods to write a header followed by compressed GeoJSON Features"""
 
     __slots__ = ("stream",)
     GEOSTREAM_SCHEMA_VERSION: int
@@ -189,26 +195,26 @@ class GeoStreamWriter:
         ...
 
     def _write_header(self, srid: int, props: typ.Optional[typ.Mapping[str, typ.Any]] = None) -> None:
-        """ Only write the header if at the start of the stream - allowing appending to a stream in progress """
+        """Only write the header if at the start of the stream - allowing appending to a stream in progress"""
         if self.stream.tell() == 0:
             properties: typ.Optional[bytes] = self._dump_properties(props)
             props_len = len(properties) if properties else 0
-            self.stream.write(struct.pack("Bii", self.GEOSTREAM_SCHEMA_VERSION, srid, props_len))
+            self.stream.write(struct.pack(HEADER_STRUCT, self.GEOSTREAM_SCHEMA_VERSION, srid, props_len))
             if properties is not None:
                 self.stream.write(properties)
 
     def write_feature(self, feature: typ.Union[typ.Mapping, Feature]) -> None:
-        """ Write a geojson feature as a compressed GeoJSON feature """
+        """Write a geojson feature as a compressed GeoJSON feature"""
         if not isinstance(feature, Feature):
             feature = Feature.from_dict(feature)
         zipped_data: bytes = self._dump_feature(feature)
         zip_len: int = len(zipped_data)
-        self.stream.write(struct.pack("i", zip_len))
+        self.stream.write(struct.pack(INTEGER_STRUCT, zip_len))
         self.stream.write(zipped_data)
-        self.stream.write(struct.pack("i", zip_len))
+        self.stream.write(struct.pack(INTEGER_STRUCT, zip_len))
 
     def write_feature_collection(self, collection: typ.Union[typ.Mapping, FeatureCollection]) -> None:
-        """ Write all features from a geojson feature collection as compressed GeoJSON features """
+        """Write all features from a geojson feature collection as compressed GeoJSON features"""
         if not isinstance(collection, FeatureCollection):
             collection = FeatureCollection(**collection)
         for feature in collection.features:

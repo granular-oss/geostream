@@ -1,71 +1,18 @@
-BUILD_NUMBER?=0
+.PHONY: usage
+usage:
+	@ # Scrape together usage from # USAGE comments
+	@grep "^# USAGE" Makefile | cut -d" " -f3-
 
-.PHONY: build bump_major bump_minor bump_patch clean dev lock package test black mypy
+.PHONY: install
+# No usage statement here as this will be called manually by run
+# in order to keep usage statements for standard commands together
+install:  .@install_poetry_dev
+	@echo "All dependencies installed"
 
+.@install_poetry_dev: pyproject.toml poetry.lock
+	poetry install
+	@touch $@
 
-all:
-	@echo 'Commands:'
-	@echo ''
-	@echo 'init - setup pipenv'
-	@echo 'bump_major - bump the major version of the project'
-	@echo 'bump_minor - bump the minor version of the project'
-	@echo 'bump_patch - bump the patch version of the project'
-	@echo 'clean - clean the build and test files'
-	@echo 'dev - install the dev dependencies and start a pipenv shell'
-	@echo 'lock - update the pipenv lock file'
-	@echo 'package - build the pip package'
-	@echo 'test - run the tests and linting'
-	@echo 'test-ci - run the tests and linting'
-
-init:
-	pip install pipenv --upgrade
-	pipenv install --dev
-
-bump_patch:
-	bumpversion patch
-
-bump_minor:
-	bumpversion minor
-
-bump_major:
-	bumpversion major
-
-black:
-	pipenv run black -l 120 geostream/* geostream/cli/*.py
-
-mypy:
-	pipenv run mypy geostream --ignore-missing-imports --warn-redundant-casts --disallow-incomplete-defs
-
-test:
-	@echo "--------------------------------------------------------------------------------"
-	@echo "running tests"
-	@echo "--------------------------------------------------------------------------------"
-	./run_tests.sh
-
-test-ci:
-	@echo "--------------------------------------------------------------------------------"
-	@echo "running tests on ci server"
-	@echo "--------------------------------------------------------------------------------"
-	pipenv run ./run_tests.sh
-
-dev:
-	pipenv shell
-
-lock:
-	@echo "--------------------------------------------------------------------------------"
-	@echo "updating pipenv lock file"
-	@echo "--------------------------------------------------------------------------------"
-	pipenv lock
-
-package: build
-	@echo "--------------------------------------------------------------------------------"
-	@echo "building package"
-	@echo "--------------------------------------------------------------------------------"
-	pipenv run ./package.sh
-
-clean:
-	rm -rf build
-	rm -rf dist
-	rm -rf results
-	rm -rf geostream.egg-info
-	rm -rf tests/_cli_out
+poetry.lock:
+	# touch but don't create the file
+	@touch -c $@

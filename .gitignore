@@ -5,13 +5,15 @@
 results/
 # pipfile lock should not be checked in for library
 Pipfile.lock
+poetry.lock
+_main.py
 
 #####################################
-# Generated from gitignore.io
+# Generate from gitignore.io
 #####################################
 
-# Created by https://www.gitignore.io/api/emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows
-# Edit at https://www.gitignore.io/?templates=emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows
+# Created by https://www.gitignore.io/api/emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows,vscode
+# Edit at https://www.gitignore.io/?templates=emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows,vscode
 
 ### Emacs ###
 # -*- mode: gitignore; -*-
@@ -63,6 +65,8 @@ flycheck_*.el
 # network security
 /network-security.data
 
+# test outputs
+tests/_cli_out
 
 ### JetBrains ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
@@ -98,6 +102,8 @@ flycheck_*.el
 # .idea/modules.xml
 # .idea/*.iml
 # .idea/modules
+# *.iml
+# *.ipr
 
 # CMake
 cmake-build-*/
@@ -141,7 +147,14 @@ fabric.properties
 # *.ipr
 
 # Sonarlint plugin
-.idea/sonarlint
+.idea/**/sonarlint/
+
+# SonarQube Plugin
+.idea/**/sonarIssues.xml
+
+# Markdown Navigator plugin
+.idea/**/markdown-navigator.xml
+.idea/**/markdown-navigator/
 
 ### Linux ###
 
@@ -207,6 +220,7 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -239,15 +253,6 @@ coverage.xml
 # Translations
 *.mo
 *.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
-instance/
-.webassets-cache
 
 # Scrapy stuff:
 .scrapy
@@ -289,6 +294,11 @@ venv.bak/
 
 # Rope project settings
 .ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
 # mkdocs documentation
 /site
@@ -346,6 +356,7 @@ GitHub.sublime-settings
 
 # Session
 Session.vim
+Sessionx.vim
 
 # Temporary
 .netrwhist
@@ -354,9 +365,12 @@ tags
 # Persistent undo
 [._]*.un~
 
+.vscode/*
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 
@@ -395,6 +409,9 @@ $RECYCLE.BIN/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Mono auto generated files
+mono_crash.*
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -421,9 +438,10 @@ Generated\ Files/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-# NUNIT
+# NUnit
 *.VisualState.xml
 TestResult.xml
+nunit-*.xml
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
@@ -462,6 +480,7 @@ StyleCopReport.xml
 *.tmp
 *.tmp_proj
 *_wpftmp.csproj
+*.log
 *.vspscc
 *.vssscc
 .builds
@@ -563,6 +582,8 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+# NuGet Symbol Packages
+*.snupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
@@ -587,6 +608,8 @@ BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
 *.appx
+*.appxbundle
+*.appxupload
 
 # Visual Studio cache files
 # files ending in .cache can be ignored
@@ -637,6 +660,9 @@ ServiceFabricBackup/
 *.bim.layout
 *.bim_*.settings
 *.rptproj.rsuser
+*- [Bb]ackup.rdl
+*- [Bb]ackup ([0-9]).rdl
+*- [Bb]ackup ([0-9][0-9]).rdl
 
 # Microsoft Fakes
 FakesAssemblies/
@@ -719,5 +745,8 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# End of https://www.gitignore.io/api/emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows
+# Backup folder for Package Reference Convert tool in Visual Studio 2017
+MigrationBackup/
+
+# End of https://www.gitignore.io/api/emacs,jetbrains,linux,macos,python,sublimetext,vim,visualstudio,windows,vscode
 

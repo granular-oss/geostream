@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  python37:
+    build:
+      context: .
+      dockerfile: ./Dockerfile3.7
+    working_dir: /app
+    volumes:
+      - "./:/app"
+  python38:
+    build:
+      context: .
+      dockerfile: ./Dockerfile3.8
+    working_dir: /app
+    volumes:
+      - "./:/app"
+  python39:
+    build:
+      context: .
+      dockerfile: ./Dockerfile3.9
+    working_dir: /app
+    volumes:
+      - "./:/app"
+  python310:
+    build:
+      context: .
+      dockerfile: ./Dockerfile3.10
+    working_dir: /app
+    volumes:
+      - "./:/app"
